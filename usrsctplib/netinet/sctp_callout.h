@@ -54,22 +54,22 @@ __FBSDID("$FreeBSD$");
 #if defined(__Userspace_os_Windows)
 #define SCTP_TIMERQ_LOCK()          EnterCriticalSection(&SCTP_BASE_VAR(timer_mtx))
 #define SCTP_TIMERQ_UNLOCK()        LeaveCriticalSection(&SCTP_BASE_VAR(timer_mtx))
-#define SCTP_TIMERQ_LOCK_INIT()     InitializeCriticalSection(&SCTP_BASE_VAR(timer_mtx))
-#define SCTP_TIMERQ_LOCK_DESTROY()  DeleteCriticalSection(&SCTP_BASE_VAR(timer_mtx))
+#if defined(WINRT)
+#define InitializeCriticalSection(a) InitializeCriticalSectionEx(a, 0, 0)
+#define SCTP_TIMERQ_LOCK_INIT() InitializeCriticalSection(&SCTP_BASE_VAR(timer_mtx))
 #else
-#ifdef INVARIANTS
-#define SCTP_TIMERQ_LOCK()          KASSERT(pthread_mutex_lock(&SCTP_BASE_VAR(timer_mtx)) == 0, ("%s: timer_mtx already locked", __func__))
-#define SCTP_TIMERQ_UNLOCK()        KASSERT(pthread_mutex_unlock(&SCTP_BASE_VAR(timer_mtx)) == 0, ("%s: timer_mtx not locked", __func__))
+#define SCTP_TIMERQ_LOCK_INIT()     InitializeCriticalSection(&SCTP_BASE_VAR(timer_mtx))
+#endif
+#define SCTP_TIMERQ_LOCK_DESTROY()  DeleteCriticalSection(&SCTP_BASE_VAR(timer_mtx))
 #else
 #define SCTP_TIMERQ_LOCK()          (void)pthread_mutex_lock(&SCTP_BASE_VAR(timer_mtx))
 #define SCTP_TIMERQ_UNLOCK()        (void)pthread_mutex_unlock(&SCTP_BASE_VAR(timer_mtx))
-#endif
-#define SCTP_TIMERQ_LOCK_INIT()     (void)pthread_mutex_init(&SCTP_BASE_VAR(timer_mtx), &SCTP_BASE_VAR(mtx_attr))
+#define SCTP_TIMERQ_LOCK_INIT()     (void)pthread_mutex_init(&SCTP_BASE_VAR(timer_mtx), NULL)
 #define SCTP_TIMERQ_LOCK_DESTROY()  (void)pthread_mutex_destroy(&SCTP_BASE_VAR(timer_mtx))
 #endif
-#endif
 
-int sctp_get_tick_count(void);
+extern int ticks;
+#endif
 
 TAILQ_HEAD(calloutlist, sctp_callout);
 

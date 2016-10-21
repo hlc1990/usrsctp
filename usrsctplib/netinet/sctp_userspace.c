@@ -151,7 +151,7 @@ cleanup:
 	}
 	return (ret);
 }
-#endif
+#endif /* defined(_WIN32) && !defined(WINRT) */
 
 #ifdef _WIN32
 void
@@ -163,7 +163,7 @@ getwintimeofday(struct timeval *tv)
 	tv->tv_sec = (long)tb.time;
 	tv->tv_usec = (long)(tb.millitm) * 1000L;
 }
-#endif
+#endif /* _WIN32 */
 
 #if defined(_WIN32) && !defined(WINRT)
 int

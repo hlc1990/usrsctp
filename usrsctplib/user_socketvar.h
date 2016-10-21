@@ -254,14 +254,14 @@ extern userland_cond_t accept_cond;
 #define	ACCEPT_LOCK()	KASSERT(pthread_mutex_lock(&accept_mtx) == 0, ("%s: accept_mtx already locked", __func__))
 #define	ACCEPT_UNLOCK()	KASSERT(pthread_mutex_unlock(&accept_mtx) == 0, ("%s: accept_mtx not locked", __func__))
 #else
-#define	ACCEPT_LOCK()			(void)pthread_mutex_lock(&accept_mtx)
-#define	ACCEPT_UNLOCK()			(void)pthread_mutex_unlock(&accept_mtx)
+#define	ACCEPT_LOCK()   (void)pthread_mutex_lock(&accept_mtx)
+#define	ACCEPT_UNLOCK() (void)pthread_mutex_unlock(&accept_mtx)
 #endif
 #define	ACCEPT_LOCK_ASSERT() \
           KASSERT(pthread_mutex_trylock(&accept_mtx) == EBUSY, ("%s: accept_mtx not locked", __func__))
 #define	ACCEPT_UNLOCK_ASSERT() do {                                                               \
-	KASSERT(pthread_mutex_trylock(&accept_mtx) == 0, ("%s: accept_mtx  locked", __func__)); \
-	(void)pthread_mutex_unlock(&accept_mtx);                                                \
+	  KASSERT(pthread_mutex_trylock(&accept_mtx) == 0, ("%s: accept_mtx  locked", __func__)); \
+	  (void)pthread_mutex_unlock(&accept_mtx);                                                \
         } while (0)
 #endif
 

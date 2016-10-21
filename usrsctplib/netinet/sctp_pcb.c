@@ -4276,7 +4276,7 @@ sctp_inpcb_free(struct sctp_inpcb *inp, int immediate, int from)
 	 * sctp_free_assoc() call.
 	 */
 #ifdef IPSEC
-		ipsec_delete_pcbpolicy(ip_pcb);
+	ipsec_delete_pcbpolicy(ip_pcb);
 #endif
 #ifndef __Panda__
 	if (ip_pcb->inp_options) {
@@ -7420,7 +7420,7 @@ sctp_load_addresses_from_init(struct sctp_tcb *stcb, struct mbuf *m,
 							                          SCTP_SO_NOT_LOCKED);
 							goto add_it_now6;
 						}
-					SCTP_TCB_UNLOCK(stcb_tmp);
+						SCTP_TCB_UNLOCK(stcb_tmp);
 					}
 					if (stcb->asoc.state == 0) {
 						/* the assoc was freed? */

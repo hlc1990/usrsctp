@@ -32,7 +32,7 @@
 
 #ifdef __FreeBSD__
 #include <sys/cdefs.h>
-__FBSDID("$FreeBSD: head/sys/netinet/sctp_input.c 303819 2016-08-07 23:04:46Z tuexen $");
+__FBSDID("$FreeBSD: head/sys/netinet/sctp_input.c 304837 2016-08-26 07:49:23Z tuexen $");
 #endif
 
 #include <netinet/sctp_os.h>
@@ -952,10 +952,10 @@ sctp_handle_shutdown(struct sctp_shutdown_chunk *cp,
 		return;
 	}
 	old_state = SCTP_GET_STATE(asoc);
-		sctp_update_acked(stcb, cp, abort_flag);
-		if (*abort_flag) {
-			return;
-		}
+	sctp_update_acked(stcb, cp, abort_flag);
+	if (*abort_flag) {
+		return;
+	}
 	if (asoc->control_pdapi) {
 		/* With a normal shutdown
 		 * we assume the end of last record.
@@ -1046,8 +1046,8 @@ sctp_handle_shutdown(struct sctp_shutdown_chunk *cp,
 		SCTP_CLEAR_SUBSTATE(asoc, SCTP_STATE_SHUTDOWN_PENDING);
 		if (SCTP_GET_STATE(asoc) != SCTP_STATE_SHUTDOWN_ACK_SENT) {
 			SCTP_SET_STATE(asoc, SCTP_STATE_SHUTDOWN_ACK_SENT);
-		sctp_stop_timers_for_shutdown(stcb);
-		sctp_send_shutdown_ack(stcb, net);
+			sctp_stop_timers_for_shutdown(stcb);
+			sctp_send_shutdown_ack(stcb, net);
 			sctp_timer_start(SCTP_TIMER_TYPE_SHUTDOWNACK,
 			                 stcb->sctp_ep, stcb, net);
 		} else if (old_state == SCTP_STATE_SHUTDOWN_ACK_SENT) {
@@ -3749,8 +3749,7 @@ sctp_find_stream_reset(struct sctp_tcb *stcb, uint32_t seq, struct sctp_tmit_chu
 	clen = chk->send_size;
 	ch = mtod(chk->data, struct sctp_chunkhdr *);
 	r = (struct sctp_stream_reset_request *)(ch + 1);
-    if (ntohl(r->request_seq) == seq &&
-        ntohs(r->ph.param_type) != SCTP_STR_RESET_RESPONSE) {
+	if (ntohl(r->request_seq) == seq) {
 		/* found it */
 		return (r);
 	}
@@ -3758,8 +3757,7 @@ sctp_find_stream_reset(struct sctp_tcb *stcb, uint32_t seq, struct sctp_tmit_chu
 	if (clen > (len + (int)sizeof(struct sctp_chunkhdr))) {
 		/* move to the next one, there can only be a max of two */
 		r = (struct sctp_stream_reset_request *)((caddr_t)r + len);
-		if (ntohl(r->request_seq) == seq &&
-            ntohs(r->ph.param_type) != SCTP_STR_RESET_RESPONSE) {
+		if (ntohl(r->request_seq) == seq) {
 			return (r);
 		}
 	}
@@ -3789,7 +3787,7 @@ sctp_clean_up_stream_reset(struct sctp_tcb *stcb)
 	}
 	asoc->ctrl_queue_cnt--;
 	sctp_free_a_chunk(stcb, chk, SCTP_SO_NOT_LOCKED);
-        /*sa_ignore NO_NULL_CHK*/
+	/*sa_ignore NO_NULL_CHK*/
 	stcb->asoc.str_reset = NULL;
 }
 
@@ -3984,14 +3982,14 @@ sctp_handle_str_reset_request_in(struct sctp_tcb *stcb,
 			len = ntohs(req->ph.param_length);
 			number_entries = ((len - sizeof(struct sctp_stream_reset_in_request)) / sizeof(uint16_t));
 			if (number_entries) {
-			for (i = 0; i < number_entries; i++) {
-				temp = ntohs(req->list_of_streams[i]);
+				for (i = 0; i < number_entries; i++) {
+					temp = ntohs(req->list_of_streams[i]);
 					if (temp >= stcb->asoc.streamoutcnt) {
 						asoc->last_reset_action[0] = SCTP_STREAM_RESET_RESULT_DENIED;
 						goto bad_boy;
 					}
-				req->list_of_streams[i] = temp;
-			}
+					req->list_of_streams[i] = temp;
+				}
 				for (i = 0; i < number_entries; i++) {
 					if (stcb->asoc.strmout[req->list_of_streams[i]].state == SCTP_STREAM_OPEN) {
 						stcb->asoc.strmout[req->list_of_streams[i]].state = SCTP_STREAM_RESET_PENDING;
@@ -5683,6 +5681,11 @@ sctp_process_control(struct mbuf *m, int iphlen, int *offset, int length,
 					*offset = length;
 					return (NULL);
 				}
+				/*
+				 * For sending a SACK this looks like DATA
+				 * chunks.
+				 */
+				stcb->asoc.last_data_chunk_from = stcb->asoc.last_control_chunk_from;
 				sctp_handle_forward_tsn(stcb,
 							(struct sctp_forward_tsn_chunk *)ch, &abort_flag, m, *offset);
 				if (abort_flag) {
@@ -5793,7 +5796,7 @@ sctp_process_control(struct mbuf *m, int iphlen, int *offset, int length,
 				int len;
 
 				op_err = sctp_get_mbuf_for_msg(sizeof(struct sctp_gen_error_cause),
-							   0, M_NOWAIT, 1, MT_DATA);
+				                               0, M_NOWAIT, 1, MT_DATA);
 				if (op_err != NULL) {
 					len = min(SCTP_SIZE32(chk_length), (uint32_t)(length - *offset));
 					cause = mtod(op_err, struct sctp_gen_error_cause *);
@@ -5803,9 +5806,9 @@ sctp_process_control(struct mbuf *m, int iphlen, int *offset, int length,
 					SCTP_BUF_NEXT(op_err) = SCTP_M_COPYM(m, *offset, len, M_NOWAIT);
 					if (SCTP_BUF_NEXT(op_err) != NULL) {
 #ifdef SCTP_MBUF_LOGGING
-							if (SCTP_BASE_SYSCTL(sctp_logging_level) & SCTP_MBUF_LOGGING_ENABLE) {
+						if (SCTP_BASE_SYSCTL(sctp_logging_level) & SCTP_MBUF_LOGGING_ENABLE) {
 							sctp_log_mbc(SCTP_BUF_NEXT(op_err), SCTP_MBUF_ICOPY);
-							}
+						}
 #endif
 						sctp_queue_op_err(stcb, op_err);
 					} else {
@@ -6500,7 +6503,7 @@ sctp_input(i_pak, va_alist)
 extern int *sctp_cpuarry;
 #endif
 
-#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020  
+#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020
 int
 sctp_input(struct mbuf **mp, int *offp, int proto SCTP_UNUSED)
 {
@@ -6532,7 +6535,7 @@ sctp_input(struct mbuf *m, int off)
 			if (SCTP_BUF_LEN(m) < offset) {
 				if ((m = m_pullup(m, offset)) == NULL) {
 					SCTP_STAT_INCR(sctps_hdrops);
-#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020  
+#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020
 					return (IPPROTO_DONE);
 #else
 					return;
@@ -6548,7 +6551,7 @@ sctp_input(struct mbuf *m, int off)
 		}
 		cpu_to_use = sctp_cpuarry[flowid % mp_ncpus];
 		sctp_queue_to_mcore(m, off, cpu_to_use);
-#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020  
+#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020
 		return (IPPROTO_DONE);
 #else
 		return;
@@ -6556,7 +6559,7 @@ sctp_input(struct mbuf *m, int off)
 	}
 #endif
 	sctp_input_with_port(m, off, 0);
-#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020  
+#if defined(__FreeBSD__) && __FreeBSD_version >= 1100020
 	return (IPPROTO_DONE);
 #endif
 }

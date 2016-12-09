@@ -10769,8 +10769,8 @@ send_forward_tsn(struct sctp_tcb *stcb,
 {
 	struct sctp_tmit_chunk *chk, *at, *tp1, *last;
 	struct sctp_forward_tsn_chunk *fwdtsn;
-	struct sctp_strseq *strseq;
-	struct sctp_strseq_mid *strseq_m;
+	struct sctp_strseq *strseq = NULL;
+	struct sctp_strseq_mid *strseq_m = NULL;
 	uint32_t advance_peer_ack_point;
 	unsigned int cnt_of_space, i, ovh;
 	unsigned int space_needed;

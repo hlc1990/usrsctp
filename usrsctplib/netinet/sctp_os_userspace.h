@@ -412,7 +412,7 @@ struct ifreq {
 
 #endif
 
-#if defined(__Userspace_os_Windows) && !defined(WINRT)
+#if defined(__Userspace_os_Windows) && !defined(WINUWP)
 int Win_getifaddrs(struct ifaddrs**);
 #define getifaddrs(interfaces)  (int)Win_getifaddrs(interfaces)
 int win_if_nametoindex(const char *);

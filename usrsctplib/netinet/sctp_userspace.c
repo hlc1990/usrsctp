@@ -104,7 +104,7 @@ sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 }
 #endif
 
-#if defined(__Userspace_os_NaCl) || defined(WINRT)
+#if defined(__Userspace_os_NaCl) || defined(WINUWP)
 int
 sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 {
@@ -112,7 +112,7 @@ sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 }
 #endif
 
-#if defined(_WIN32) && !defined(WINRT)
+#if defined(_WIN32) && !defined(WINUWP)
 int
 sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 {
@@ -151,7 +151,7 @@ cleanup:
 	}
 	return (ret);
 }
-#endif /* defined(_WIN32) && !defined(WINRT) */
+#endif /* defined(_WIN32) && !defined(WINUWP) */
 
 #ifdef _WIN32
 void
@@ -165,7 +165,7 @@ getwintimeofday(struct timeval *tv)
 }
 #endif /* _WIN32 */
 
-#if defined(_WIN32) && !defined(WINRT)
+#if defined(_WIN32) && !defined(WINUWP)
 int
 Win_getifaddrs(struct ifaddrs** interfaces)
 {

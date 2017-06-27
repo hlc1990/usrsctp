@@ -54,12 +54,6 @@ __FBSDID("$FreeBSD$");
 #if defined(__Userspace_os_Windows)
 #define SCTP_TIMERQ_LOCK()          EnterCriticalSection(&SCTP_BASE_VAR(timer_mtx))
 #define SCTP_TIMERQ_UNLOCK()        LeaveCriticalSection(&SCTP_BASE_VAR(timer_mtx))
-#ifdef WINRT
-# ifdef InitializeCriticalSection
-#  undef InitializeCriticalSection
-# endif /* InitializeCriticalSection */
-# define InitializeCriticalSection(a) InitializeCriticalSectionEx(a, 0, 0)
-#endif /* WINRT */
 #define SCTP_TIMERQ_LOCK_INIT()     InitializeCriticalSection(&SCTP_BASE_VAR(timer_mtx))
 #define SCTP_TIMERQ_LOCK_DESTROY()  DeleteCriticalSection(&SCTP_BASE_VAR(timer_mtx))
 #else

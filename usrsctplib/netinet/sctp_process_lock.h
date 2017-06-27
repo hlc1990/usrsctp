@@ -115,13 +115,6 @@
 
 #if defined(__Userspace_os_Windows)
 
-#ifdef WINRT
-# ifdef InitializeCriticalSection
-#  undef InitializeCriticalSection
-# endif /* InitializeCriticalSection */
-# define InitializeCriticalSection(a) InitializeCriticalSectionEx(a, 0, 0)
-#endif /* WINRT */
-
 #define SCTP_WQ_ADDR_INIT() \
         InitializeCriticalSection(&SCTP_BASE_INFO(wq_addr_mtx))
 #define SCTP_WQ_ADDR_DESTROY() \

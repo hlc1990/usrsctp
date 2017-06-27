@@ -68,10 +68,6 @@ __FBSDID("$FreeBSD: head/sys/netinet/sctp_usrreq.c 310590 2016-12-26 11:06:41Z t
 #define APPLE_FILE_NO 7
 #endif
 
-#ifdef WINRT
-#define WaitForSingleObject(a, b) WaitForSingleObjectEx(a, b, FALSE)
-#endif /* WINRT */
-
 extern const struct sctp_cc_functions sctp_cc_functions[];
 extern const struct sctp_ss_functions sctp_ss_functions[];
 

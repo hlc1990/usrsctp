@@ -271,13 +271,8 @@ extern userland_cond_t accept_cond;
  */
 #define	SOCKBUF_MTX(_sb) (&(_sb)->sb_mtx)
 #if defined (__Userspace_os_Windows)
-#ifdef WINRT
-#define SOCKBUF_LOCK_INIT(_sb, _name) \
-	InitializeCriticalSectionEx(SOCKBUF_MTX(_sb), 0, 0)
-#else
 #define SOCKBUF_LOCK_INIT(_sb, _name) \
 	InitializeCriticalSection(SOCKBUF_MTX(_sb))
-#endif
 #define SOCKBUF_LOCK_DESTROY(_sb) DeleteCriticalSection(SOCKBUF_MTX(_sb))
 #define SOCKBUF_COND_INIT(_sb) InitializeConditionVariable((&(_sb)->sb_cond))
 #define SOCKBUF_COND_DESTROY(_sb) DeleteConditionVariable((&(_sb)->sb_cond))

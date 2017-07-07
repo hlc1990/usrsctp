@@ -114,7 +114,6 @@
 #define SCTP_IPI_COUNT_INIT()
 
 #if defined(__Userspace_os_Windows)
-
 #define SCTP_WQ_ADDR_INIT() \
         InitializeCriticalSection(&SCTP_BASE_INFO(wq_addr_mtx))
 #define SCTP_WQ_ADDR_DESTROY() \

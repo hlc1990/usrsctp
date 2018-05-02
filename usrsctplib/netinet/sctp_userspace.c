@@ -107,7 +107,7 @@ sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 }
 #endif
 
-#if defined(__Userspace_os_NaCl)
+#if defined(__Userspace_os_NaCl) || defined(WINUWP)
 int
 sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 {
@@ -115,7 +115,7 @@ sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 }
 #endif
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(WINUWP)
 int
 sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 {
@@ -155,7 +155,9 @@ cleanup:
 	}
 	return (ret);
 }
+#endif /* defined(_WIN32) && !defined(WINUWP) */
 
+#ifdef _WIN32
 void
 getwintimeofday(struct timeval *tv)
 {
@@ -165,7 +167,9 @@ getwintimeofday(struct timeval *tv)
 	tv->tv_sec = (long)tb.time;
 	tv->tv_usec = (long)(tb.millitm) * 1000L;
 }
+#endif /* _WIN32 */
 
+#if defined(_WIN32) && !defined(WINUWP)
 int
 win_if_nametoindex(const char *ifname)
 {
